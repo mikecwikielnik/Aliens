@@ -1,3 +1,4 @@
+from enum import Flag
 import sys 
 
 import pygame
@@ -24,6 +25,7 @@ class AlienInvasion:
         """Start the main loop for the game. """
         while True:
             self._check_events()
+            self.ship.update()
             self._update_screen() 
         
     def _check_events(self):
@@ -31,8 +33,17 @@ class AlienInvasion:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-            
-            
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = True
+                elif event.key == pygame.K_LEFT:
+                    self.ship.moving_left = True
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = False
+                elif event.key == pygame.K_LEFT:
+                    self.ship.moving_left = False
+                                
             # Make the most recently drawn screen visible. 
             pygame.display.flip()
             
@@ -44,7 +55,7 @@ class AlienInvasion:
         pygame.display.flip()
             
 if __name__ == '__main__':
-    # Make a game instance, and run the game.
+        # Make a game instance, and run the game.
     ai = AlienInvasion()
     ai.run_game()
     
