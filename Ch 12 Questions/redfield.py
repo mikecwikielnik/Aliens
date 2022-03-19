@@ -9,7 +9,7 @@ class Redfield:
         self.screen_rect = qt_game.screen.get_rect()
         
         # Load the chris image and get is rect 
-        self.image = pygame.image.load('images/redfield.bmp')
+        self.image = pygame.image.load('redfield.bmp')
         self.rect = self.image.get_rect()
         # Start each new chris at the center of the screen
         self.rect.center = self.screen_rect.center
