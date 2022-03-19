@@ -10,7 +10,7 @@ import pygame
 from settings import Settings
 from redfield import Redfield
 
-class BlueWindow:
+class BlueWindow:   
     """Create a blue pygame window. """
     
     def __init__(self):
