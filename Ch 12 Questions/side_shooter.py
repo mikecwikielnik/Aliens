@@ -57,8 +57,6 @@ class Side_Shooter:
             self.side_ship.moving_up = False
         elif event.key == pygame.K_DOWN:
             self.side_ship.moving_down = False
-        elif event.key == pygame.K_q:
-            sys.quit()
             
             # Make the most recently drawn screen visible
             pygame.display.flip()
@@ -76,6 +74,6 @@ class Side_Shooter:
         
 if __name__ == '__main__':
     # Make a game instance, and run the game.
-    ss = Side_Shooter()
-    ss.run_game()
+    ss_game = Side_Shooter()
+    ss_game.run_game()
     

@@ -13,10 +13,13 @@ class Side_Ship:
         # Load the ship image and get its rect
         self.image = pygame.image.load('ship.bmp')
         self.rect = self.image.get_rect()
+        
         # Start each new ship at the center 
-        self.rect.left = self.screen_rect.left
+        self.rect.midleft = self.screen_rect.midleft
+        
         # Store a decimal value for ships vertical position
         self.y = float(self.rect.y)
+        
         # Movement flags
         self.moving_up = False
         self.moving_down = False 
@@ -25,7 +28,7 @@ class Side_Ship:
         """Update the ship's position based on the movement flag. """
         if self.moving_up and self.rect.top > 0:
             self.y -= self.side_settings.side_ship_speed
-        if self.moving_down and self.rect.bottom <= self.screen_rect.bottom:
+        if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
             self.y += self.side_settings.side_ship_speed
         
         # Update the rect object from self
