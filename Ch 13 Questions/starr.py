@@ -7,7 +7,7 @@ class Starr(Sprite):
     
     def __init__(self, st_game):
         """Initialize the starrr and set its starting position. """
-        super().__init__
+        super().__init__()
         self.screen = st_game.screen
         
         # Load the starr image and set its rect attribute
@@ -19,7 +19,7 @@ class Starr(Sprite):
         self.rect.y = self.rect.height
         
         # Store the starr's exact horizontal position
-        self.x = float(self.rect.x)
+        self.y = float(self.rect.y)
         
         
         
