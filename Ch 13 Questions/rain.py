@@ -23,16 +23,16 @@ class Rain(Sprite):
         
         # Store the alien's exact horizontal position. 
         
-        self.x = float(self.rect.x)
+        self.y = float(self.rect.y)
         
-    def check_edges(self):
-        """Return True if alien is at edge of screen. """
-        screen_rect = self.screen.get_rect()
-        if self.rect.right >= screen_rect.right or self.rect.left <= 0:
-            return True 
+    def check_disappeared(self):
+        """Check if drop has disappeared off bottom of screen. """
+        if self.rect.top > self.screen.get_rect().bottom:
+            return True
+        else: 
+            return False
         
     def update(self):
         """Move the alien to the right or left. """
-        self.x += (self.settings.rain_speed *
-                   self.settings.storm_direction)
-        self.rect.x = self.x 
+        self.y += self.settings.rain_speed
+        self.rect.y = self.y 

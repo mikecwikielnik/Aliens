@@ -2,8 +2,6 @@
 
 # Matthes, Eric. Python Crash Course, 2nd Edition (p. 268). No Starch Press. Kindle Edition. 
 
-
-from random import randint
 import sys
 import pygame
 
@@ -34,7 +32,7 @@ class RainStorm:
         """Start the main loop for the game. """
         while True:
             self._check_events()
-            self._update_alien()
+            self._update_rain()
             self._update_screen()
             
     def _check_events(self):
@@ -49,58 +47,64 @@ class RainStorm:
         """Respond to q. """
         if event.key == pygame.K_q:
             sys.exit()
-            
-    def _update_alien(self):
-        """
-        Check if the fleet is at an edge, 
-            then update the position of all aliens in the fleet. 
-        """
-        self._check_fleet_edges()
-        self.rain.update()
-            
-    def _update_screen(self):
-        self.screen.fill(self.settings.bg_color)
-        self.rain.draw(self.screen)
-        
-        pygame.display.flip()
-        
+                  
     def _create_storm(self):
         """Create a rainstorm. """
         # Crate rain and find the number of raindrops in a row. 
         # Spacing between each drop is equal to one drop width
         rain = Rain(self)
         rain_width, rain_height = rain.rect.size
-        available_space_x = self.settings.screen_width - (rain_width)
-        number_rain_x = available_space_x // (2 * rain_width)
+        available_space_x = self.settings.screen_width - rain_width
+        
+        # We'll need this number again to make new rows. 
+        self.number_rain_x = available_space_x // (2 * rain_width)
         
         # Determine the number of rows of rain that fit on the screen.
-        available_space_y = (self.settings.screen_height - 
-                             (2 * rain_height))
+        available_space_y = self.settings.screen_height
         number_rows = available_space_y // (2 * rain_height)
         
-        # Create the full storm
+        # Fill the sky with drops.
         for row_number in range(number_rows):
-            for rain_number in range(number_rain_x):
-                self._create_rain(rain_number, row_number)
+            self._create_row(row_number)
+    
+    def _create_row(self, row_number):   
+        # Create the full storm
+        for rain_number in range(self.number_rain_x):
+            self._create_rain(rain_number, row_number)
                 
     def _create_rain(self, rain_number, row_number): # watch your args here CAUTION!
         # Create a drop and place it in the row 
         rain = Rain(self)
         rain_width, rain_height = rain.rect.size
-        rain.x = rain_width + 2 * rain_width * rain_number
-        rain.rect.x = rain.x
-        rain.rect.y = rain_height + 2 * rain.rect.height * row_number
-        
-        rain.rect.x += randint(-5, 5)
-        rain.rect.y += randint(-5, 5)
+        rain.rect.x = rain_width + 2 * rain_width * rain_number
+        rain.y = 2 * rain.rect.height * row_number
+        rain.rect.y = rain.y
         self.rain.add(rain)
+
+    def _update_rain(self):
+        """
+        Check if the fleet is at an edge, 
+            then update the position of all aliens in the fleet. 
+        """
+        self.rain.update()
         
-    def _check_fleet_edges(self):
-        """Drop the entire storm and change the storm's direction. """
-        for rain in self.rain.sprites():
-            rain.rect.y += self.settings.storm_drop_speed
-        self.settings.storm_direction *= -1 
+        # Assume we won't make new drops
+        make_new_drops = False
+        for drop in self.rain.copy():
+            if drop.check_disappeared():
+                # Remove this drop, and we'll need to make new drops
+                self.rain.remove(drop)
+                make_new_drops = True
         
+        # Make a new row of rain if needed
+        if make_new_drops:
+            self._create_row(0)
+        
+    def _update_screen(self):
+        self.screen.fill(self.settings.bg_color)
+        self.rain.draw(self.screen)
+        
+        pygame.display.flip()
         
 if __name__ == '__main__':
     # Make a game instance, and run the game 
