@@ -2,11 +2,13 @@ from enum import Flag
 from pickle import TRUE
 from ssl import ALERT_DESCRIPTION_HANDSHAKE_FAILURE
 import sys
+from time import sleep
 from wsgiref.util import shift_path_info 
 
 import pygame
 
 from settings import Settings 
+from game_stats import GameStats
 from ship import Ship
 from bullet import Bullet 
 from alien import Alien
@@ -27,6 +29,9 @@ class AlienInvasion:
         self.settings.screen_width = self.screen.get_rect().width
         self.settings.screen_height = self.screen.get_rect().height
         pygame.display.set_caption("Alien Invasion")
+        
+        # Create an instance to store game stats
+        self.stats = GameStats(self)
         
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
@@ -107,6 +112,10 @@ class AlienInvasion:
         """
         self._check_fleet_edges()
         self.aliens.update()
+        
+        # Look for alien-ship collisions.
+        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+            print("Ship Hit!")
         
     def _update_screen(self):
         """Update images on the screen, and flip to the new screen. """
