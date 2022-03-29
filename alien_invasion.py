@@ -1,4 +1,5 @@
 from enum import Flag
+from pickle import TRUE
 from ssl import ALERT_DESCRIPTION_HANDSHAKE_FAILURE
 import sys
 from wsgiref.util import shift_path_info 
@@ -86,6 +87,11 @@ class AlienInvasion:
         for bullet in self.bullets.copy():
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
+                
+        # Check for any bullets that have hit aliens. 
+        # If so, get rid of the bullet and the alien. 
+        collisions = pygame.sprite.groupcollide(
+            self.bullets, self.aliens, True, True) # switch these to false & see what happens
             
     def _update_aliens(self):
         """
