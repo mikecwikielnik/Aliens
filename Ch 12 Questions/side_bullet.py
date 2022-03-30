@@ -17,14 +17,14 @@ class Side_Bullet(Sprite):
         self.rect.midright = ss_game.side_ship.rect.midright
         
         # Store the bullet's position as a decimal value.
-        self.y = float(self.rect.y)
+        self.x = float(self.rect.x)
         
     def update(self):
         """Move the bullet up the screen. """
         # Update the decimal position of the bullet. 
-        self.y -= self.settings.bullet_speed
+        self.x += self.settings.bullet_speed
         # Update the rect positioin
-        self.rect.y = self.y 
+        self.rect.x = self.x 
         
     def draw_bullet(self):
         """Draw the bullet to the screeen. """

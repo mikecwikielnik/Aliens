@@ -1,4 +1,4 @@
-from hashlib import sha1
+
 import sys 
 
 from random import random
@@ -6,6 +6,7 @@ from random import random
 import pygame
 
 from side_settings import Side_Setting
+from game_stats import GameStats
 from side_ship import Side_Ship
 from side_bullet import Side_Bullet 
 from alien12 import Side_Alien
@@ -23,6 +24,9 @@ class Side_Shooter:
             (self.side_settings.screen_width, self.side_settings.screen_height))
         pygame.display.set_caption("Side Shooter game")
         
+        # Create an instance to store game stats
+        self.stats = GameStats(self)
+        
         self.side_ship = Side_Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
@@ -32,12 +36,14 @@ class Side_Shooter:
         """Start the main loop for the game. """
         while True:
             self._check_events()
-            self._create_alien()
-            
-            self.side_ship.update()
-            self._update_bullets()
-            
-            self.aliens.update()
+
+            if self.stats.game_active:
+                self._create_alien()
+                
+                self.side_ship.update()
+                self._update_bullets()
+                self._update_alien()
+                
             self._update_screen()
             
     def _check_events(self):
@@ -56,10 +62,11 @@ class Side_Shooter:
             self.side_ship.moving_up = True
         elif event.key == pygame.K_DOWN:
             self.side_ship.moving_down = True
-        elif event.key == pygame.K_q:
-            sys.quit()
         elif event.key == pygame.K_SPACE:
             self._fire_bullet()
+        elif event.key == pygame.K_q:
+            sys.exit()
+
         
     def _check_keyup_events(self, event):
         """Respond to key releases. """
@@ -91,9 +98,11 @@ class Side_Shooter:
         # Remove any bullets and aliens that have collided.
         collisions = pygame.sprite.groupcollide(
             self.bullets, self.aliens, True, True)
-
         
-  
+        if not self.aliens:
+            # Destroy existing bullets and create new fleet
+            self.bullets.empty()
+            self._create_alien()
                 
     def _create_alien(self):
         """Create an alien, if conditions are right.  """
@@ -101,6 +110,42 @@ class Side_Shooter:
             alien = Side_Alien(self)
             self.aliens.add(alien)
             print(len(self.aliens))
+            
+    def _update_alien(self):
+        """Update alien positions, and look for collisions with ship. """
+        self.aliens.update()
+        
+        if pygame.sprite.spritecollideany(self.side_ship, self.aliens):
+            self._ship_hit()
+        
+        # Look for aliens that have hit the left edge of the screen.
+        self._check_aliens_left_edge()
+        
+    def _check_aliens_left_edge(self):
+        """
+        Respond to aliens that have hit left edge of the screen. 
+            Treat this the same as the ship getting hit. 
+        """
+        
+        for alien in self.aliens.sprites():
+            if alien.rect.left < 0:
+                self._ship_hit
+                break
+            
+    def _ship_hit(self):
+        """Respond to the ship being hit by an alien. """
+        if self.stats.ships_left > 0:
+            # Decrement ships_left
+            self.stats.ships_left -= 1
+            
+            # Get rid of any remaining aliens and bullets
+            self.aliens.empty()
+            self.bullets.empty()
+            
+            # Center the ship
+            self.side_ship.center_ship()
+        else:
+            self.stats.game_active = False
 
     
     def _update_screen(self):
