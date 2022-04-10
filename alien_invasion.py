@@ -33,10 +33,8 @@ class AlienInvasion:
         
         # Create an instance to store game statistics,
         #   and create a scoreboard
-        self.sb = Scoreboard(self)
-        
-        # Create an instance to store game stats
         self.stats = GameStats(self)
+        self.sb = Scoreboard(self)
         
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
@@ -99,7 +97,13 @@ class AlienInvasion:
         """Start a new game when the player clicks Play. """
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if button_clicked and not self.stats.game_active:
+            # Reset the game settings
+            self.stats.reset_stats()
+            self.stats.game_active = True
+            self.sb.prep_score()
+            self.settings.initialize_dynamic_settings()
             self._start_game()
+            
             
     def _check_difficulty_buttons(self, mouse_pos):
         """Set the appropriate difficulty level. """
@@ -178,6 +182,11 @@ class AlienInvasion:
         collisions = pygame.sprite.groupcollide(
             self.bullets, self.aliens, True, True) # switch these to false & see what happens
         
+        if collisions:
+            for aliens in collisions.values():
+                self.stats.score += self.settings.alien_points
+            self.sb.prep_score()
+            
         if not self.aliens:
             # Destroy existing bullets and create new fleet 
             self.bullets.empty()
@@ -197,7 +206,16 @@ class AlienInvasion:
             self._ship_hit()
             
         # Look for aliens hitting the bottom of the screen.
-        self._check_alien_bottom()
+        self._check_aliens_bottom()
+        
+    def _check_aliens_bottom(self):
+        """Check if any aliens have reached the bottom of the screen. """
+        screen_rect = self.screen.get_rect()
+        for alien in self.aliens.sprites():
+            if alien.rect.bottom >= screen_rect.bottom:
+                # Treat this the same as if the ship got hit.
+                self._ship_hit()
+                break
             
     def _ship_hit(self):
         """Respond to the ship being hit by an alien. """
@@ -260,15 +278,6 @@ class AlienInvasion:
         for alien in self.aliens.sprites():
             alien.rect.y += self.settings.fleet_drop_speed
         self.settings.fleet_direction *= -1
-        
-    def _check_alien_bottom(self):
-        """Check if any aliens have reached the bottom of the screen. """
-        screen_rect = self.screen.get_rect()
-        for alien in self.aliens.sprites():
-            if alien.rect.bottom >= screen_rect.bottom:
-                # Treat this the same as if the ship got hit.
-                self._ship_hit()
-                break
             
     def _update_screen(self):
         """Update images on the screen, and flip to the new screen. """
